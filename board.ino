@@ -1,3 +1,5 @@
+// #include <Servo.h>
+
 #include "board.h"
 #include "utils.h"
 
@@ -6,10 +8,6 @@ Servo servo;
 void setup_layout() {
 	pinMode(BUTTON_PIN, INPUT_PULLUP);
 	servo.attach(SERVO_PIN);
-}
-
-Servo get_servo() {
-	return servo;
 }
 
 int previous_button_state;
@@ -35,4 +33,8 @@ float read_acceleration_y() {
 
 float read_altitude() {
 	return 0.0f;
+}
+
+void set_servo(int angle) {
+	servo.write(angle);
 }
