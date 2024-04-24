@@ -55,3 +55,10 @@ float average_array(int size, float* array) {
 		sum += array[i];
 	return sum / (float)size;
 }
+
+float compute_deltas(int size, float *array) {
+	float sum = 0.0f;
+	for(int i = 1; i < size; i++)
+		sum += array[i] - array[i - 1];
+	return sum / (float)(size - 1);
+}
