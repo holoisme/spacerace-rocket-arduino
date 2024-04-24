@@ -2,12 +2,21 @@
 
 #include "board.h"
 #include "utils.h"
+#include "config.h"
+
+#include <Wire.h>
+#include <Adafruit_BMP085.h>
 
 Servo servo;
+Adafruit_BMP085 bmp;
 
 void setup_layout() {
 	pinMode(BUTTON_PIN, INPUT_PULLUP);
 	servo.attach(SERVO_PIN);
+	if (!bmp.begin()) {
+		Serial.println("Could not find a valid BMP085 sensor, check wiring!");
+		while (1) {}
+	}
 }
 
 int previous_button_state;
@@ -32,7 +41,19 @@ float read_acceleration_y() {
 }
 
 float read_altitude() {
-	return 0.0f;
+	return bmp.readAltitude(SEA_LEVEL_PRESSURE_hPa * 100);
+}
+
+float read_temperature() {
+	return bmp.readTemperature();
+}
+
+float read_pressure() {
+	return bmp.readPressure();
+}
+
+float read_sealevel_pressure() {
+	return bmp.readSealevelPressure();
 }
 
 void set_servo(int angle) {
