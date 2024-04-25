@@ -4,14 +4,22 @@
 #include "board.h"
 #include "utils.h"
 #include "config.h"
+#include "sdapi.h"
 
 // float acceleration_samples[ACCELERATION_N_SAMPLES];
-float altitude_samples[ALTITUDE_N_SAMPLES];
+// float altitude_samples[ALTITUDE_N_SAMPLES];
+float* altitude_samples;
 
 void setup() {
 	Serial.begin(9600);
+	Serial.println("Initializing Arduino Nano...");
+	open_file();
 	setup_layout();
 	change_state(POWER_OFF);
+
+  	altitude_samples = calloc(ALTITUDE_N_SAMPLES, sizeof(float));
+  	if(altitude_samples == NULL)
+    	Serial.println("Not enough memory !");
 }
 
 void loop() {
@@ -44,6 +52,11 @@ void state_power_off() {
 	digitalWrite(LED_BUILTIN, LOW);
 	set_servo(DEFAULT_SERVO_POSITION);
 	noTone(BUZZER_PIN);
+
+  Serial.print("Altitude: ");
+  Serial.println(get_current_altitude());
+  Serial.print("Velocity: ");
+  Serial.println(get_current_velocity());
 
 	int button_state = read_button_once();
 	if(button_state == TRUE)
@@ -110,4 +123,6 @@ void state_grounded() {
 	int button_state = read_button_once();
 	if(button_state == TRUE)
 		change_state(POWER_OFF);
+
+	close_file();
 }
