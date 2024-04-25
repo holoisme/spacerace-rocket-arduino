@@ -11,10 +11,13 @@ Servo servo;
 Adafruit_BMP085 bmp;
 
 void setup_layout() {
+	Serial.println("Setting button...");
 	pinMode(BUTTON_PIN, INPUT_PULLUP);
+	Serial.println("Attaching servo...");
 	servo.attach(SERVO_PIN);
+	Serial.println("Initializing BMP180...");
 	if (!bmp.begin()) {
-		Serial.println("Could not find a valid BMP085 sensor, check wiring!");
+		Serial.println("Could not find the BMP180 sensor.");
 		while (1) {}
 	}
 }
@@ -36,10 +39,6 @@ int read_button_once() {
 	return FALSE;
 }
 
-float read_acceleration_y() {
-	return 0.0f;
-}
-
 float read_altitude() {
 	return bmp.readAltitude(SEA_LEVEL_PRESSURE_hPa * 100);
 }
@@ -57,5 +56,7 @@ float read_sealevel_pressure() {
 }
 
 void set_servo(int angle) {
+	Serial.print("Setting the Servo angle at ");
+	Serial.println(angle);
 	servo.write(angle);
 }
