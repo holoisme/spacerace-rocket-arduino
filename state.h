@@ -9,3 +9,4 @@
 
 void change_state(int new_state);
 int get_current_state();
+unsigned long get_timestamp();

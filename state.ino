@@ -1,7 +1,7 @@
 #include "state.h"
 
 int current_state;
-int idle_timestamp;
+unsigned long idle_timestamp;
 
 void change_state(int new_state) {
 	current_state = new_state;
@@ -21,4 +21,4 @@ void change_state(int new_state) {
 }
 
 int get_current_state() { return current_state; }
-int get_timestamp() { return millis() - idle_timestamp; }
+unsigned long get_timestamp() { return millis() - idle_timestamp; }
