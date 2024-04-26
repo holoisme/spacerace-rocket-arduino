@@ -6,8 +6,6 @@
 #include "config.h"
 #include "sdapi.h"
 
-// float acceleration_samples[ACCELERATION_N_SAMPLES];
-// float altitude_samples[ALTITUDE_N_SAMPLES];
 float* altitude_samples;
 
 void setup() {
@@ -17,9 +15,9 @@ void setup() {
 	setup_layout();
 	change_state(POWER_OFF);
 
-  	altitude_samples = calloc(ALTITUDE_N_SAMPLES, sizeof(float));
-  	if(altitude_samples == NULL)
-    	Serial.println("Not enough memory !");
+	altitude_samples = calloc(ALTITUDE_N_SAMPLES, sizeof(float));
+	if(altitude_samples == NULL)
+		Serial.println("Not enough memory !");
 }
 
 void loop() {
@@ -36,7 +34,6 @@ void loop() {
 }
 
 void update_sensor_samples() {
-	// populate_array(ACCELERATION_N_SAMPLES, acceleration_samples, read_acceleration_y);
 	populate_array(ALTITUDE_N_SAMPLES, altitude_samples, read_altitude);
 }
 
@@ -48,19 +45,24 @@ float get_current_velocity() {
 	return compute_deltas(ALTITUDE_N_SAMPLES, altitude_samples) / DT_s;
 }
 
+void record_change_state(int new_state) {
+	change_state(new_state);
+	write_change_state(get_timestamp(), new_state);
+}
+
 void state_power_off() {
 	digitalWrite(LED_BUILTIN, LOW);
 	set_servo(DEFAULT_SERVO_POSITION);
 	noTone(BUZZER_PIN);
 
-  Serial.print("Altitude: ");
-  Serial.println(get_current_altitude());
-  Serial.print("Velocity: ");
-  Serial.println(get_current_velocity());
+	Serial.print("Altitude: ");
+	Serial.println(get_current_altitude());
+	Serial.print("Velocity: ");
+	Serial.println(get_current_velocity());
 
 	int button_state = read_button_once();
 	if(button_state == TRUE)
-		change_state(IDLE);
+		record_change_state(IDLE);
 }
 
 void state_idle() {
@@ -68,12 +70,14 @@ void state_idle() {
 	set_servo(DEFAULT_SERVO_POSITION);
 	tick_no_delay(IDLE_TICK_INTERVAL, IDLE_TICK_FREQUENCY);
 
+	write_to_file(get_timestamp(), get_current_altitude(), get_current_velocity(), read_temperature(), read_pressure());
+
 	int button_state = read_button_once();
 	if(button_state == TRUE)
-		change_state(ASCENDING);
+		record_change_state(ASCENDING);
 
 	if(get_current_velocity() >= IDLE_VELOCITY_THRESHOLD && get_current_altitude() >= IDLE_ALTITUDE_THRESHOLD)
-		change_state(ASCENDING);
+		record_change_state(ASCENDING);
 }
 
 void state_ascending() {
@@ -81,12 +85,14 @@ void state_ascending() {
 	set_servo(DEFAULT_SERVO_POSITION);
 	tick_continuously_no_delay(1000, 250, 350);
 
+	write_to_file(get_timestamp(), get_current_altitude(), get_current_velocity(), read_temperature(), read_pressure());
+
 	int button_state = read_button_once();
 	if(button_state == TRUE)
-		change_state(DESCENDING_PRE_MAIN);
+		record_change_state(DESCENDING_PRE_MAIN);
 
 	if(get_current_velocity() <= ASCTODES_VELOCITY_THRESHOLD)
-		change_state(DESCENDING_PRE_MAIN);
+		record_change_state(DESCENDING_PRE_MAIN);
 }
 
 void state_descending_pre_main() {
@@ -94,12 +100,14 @@ void state_descending_pre_main() {
 	set_servo(DEFAULT_SERVO_POSITION);
 	tick_continuously_no_delay(1000, 150, 250);
 
+	write_to_file(get_timestamp(), get_current_altitude(), get_current_velocity(), read_temperature(), read_pressure());
+
 	int button_state = read_button_once();
 	if(button_state == TRUE)
-		change_state(DESCENDING_POST_MAIN);
+		record_change_state(DESCENDING_POST_MAIN);
 	
 	if(get_current_altitude() <= DEPLOY_ALTITUDE_THRESHOLD)
-		change_state(DESCENDING_POST_MAIN);
+		record_change_state(DESCENDING_POST_MAIN);
 }
 
 void state_descending_post_main() {
@@ -107,12 +115,14 @@ void state_descending_post_main() {
 	set_servo(DEPLOY_SERVO_POSITION);
 	tick_continuously_no_delay(1000, 100, 250);
 
+	write_to_file(get_timestamp(), get_current_altitude(), get_current_velocity(), read_temperature(), read_pressure());
+
 	int button_state = read_button_once();
 	if(button_state == TRUE)
-		change_state(GROUNDED);
+		record_change_state(GROUNDED);
 
 	if(abs(get_current_velocity()) <= GROUNDED_VELOCITY)
-		change_state(GROUNDED);
+		record_change_state(GROUNDED);
 }
 
 void state_grounded() {
@@ -120,9 +130,11 @@ void state_grounded() {
 	set_servo(DEPLOY_SERVO_POSITION);
 	noTone(BUZZER_PIN);
 
+	write_to_file(get_timestamp(), get_current_altitude(), get_current_velocity(), read_temperature(), read_pressure());
+
 	int button_state = read_button_once();
 	if(button_state == TRUE)
-		change_state(POWER_OFF);
+		record_change_state(POWER_OFF);
 
 	close_file();
 }
