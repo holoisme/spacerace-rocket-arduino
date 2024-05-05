@@ -19,6 +19,8 @@ void setup_layout() {
 	if (!bmp.begin()) {
 		Serial.println("Could not find the BMP180 sensor.");
 		while (1) {}
+	} else {
+		Serial.println("Was able to find the BMP180...");
 	}
 }
 
@@ -56,7 +58,7 @@ float read_sealevel_pressure() {
 }
 
 void set_servo(int angle) {
-	Serial.print("Setting the Servo angle at ");
-	Serial.println(angle);
+	// Serial.print("Setting the Servo angle at ");
+	// Serial.println(angle);
 	servo.write(angle);
 }
