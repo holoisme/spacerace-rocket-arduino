@@ -2,9 +2,9 @@
 
 #include "Servo.h"
 
-#define BUTTON_PIN 6
-#define BUZZER_PIN 8
-#define SERVO_PIN 5
+#define BUTTON_PIN 5
+#define BUZZER_PIN 9
+#define SERVO_PIN 3
 #define SPI_CS_PIN 4
 
 void setup_layout();
