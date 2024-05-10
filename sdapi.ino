@@ -40,7 +40,7 @@ void write_change_state(unsigned long timestamp, int state) {
 
 void write_to_file(unsigned long timestamp, float altitude, float velocity, float temperature, float pressure) {
 	if(!file) {
-		Serial.print(F("SD Card: error on opening file data.txt"));
+		Serial.println(F("SD Card: error on opening file data.txt"));
 		return;
 	}
 	file.print(timestamp);
@@ -57,6 +57,7 @@ void write_to_file(unsigned long timestamp, float altitude, float velocity, floa
 
 void close_file() {
 	if(file) {
+		Serial.println("Closing file...");
 		file.close();
 	}
 }
