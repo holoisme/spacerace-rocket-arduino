@@ -57,8 +57,12 @@ float read_sealevel_pressure() {
 	return bmp.readSealevelPressure();
 }
 
+int last_angle = 0;
 void set_servo(int angle) {
-	// Serial.print("Setting the Servo angle at ");
-	// Serial.println(angle);
-	servo.write(angle);
+  if(angle != last_angle) {
+    Serial.print("Setting the Servo angle at ");
+    Serial.println(angle);
+	  servo.write(angle);
+  }
+  last_angle = angle;
 }
